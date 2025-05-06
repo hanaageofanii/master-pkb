@@ -28,8 +28,8 @@ class AppServiceProvider extends ServiceProvider
 
         Filament::serving(function () {
             $logo = request()->is('admin/login') 
-                ? asset('/image/logo.png')   // Logo untuk halaman login
-                : asset('/image/logo-pkb.png'); // Logo untuk dashboard
+                ? asset('/image/logo.png')   
+                : asset('/image/logo-pkb.png');
 
             Filament::registerRenderHook(
                 'panels::brand',

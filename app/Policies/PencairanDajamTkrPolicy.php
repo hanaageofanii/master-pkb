@@ -3,23 +3,24 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Models\PencairanDajamTkr;
 
-class PencairanDajamTkr
+class PencairanDajamTkrPolicy
 {
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(['admin','Direksi', 'Legal officer','Legal Pajak']);
+        return $user->hasRole(['admin', 'Direksi', 'Kasir 1', 'Kasir 2']);
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, PencairanDajamTkr $PencairanDajamTkr): bool
+    public function view(User $user, PencairanDajamTkrPolicy $PencairanDajamTkr): bool
     {
-        return $user->hasRole(['admin','Direksi', 'Legal officer','Legal Pajak']);
+        return $user->hasRole(['admin', 'Direksi', 'Kasir 1', 'Kasir 2']);
     }
 
     /**
@@ -27,7 +28,7 @@ class PencairanDajamTkr
      */
     public function create(User $user): bool
     {
-        return $user->hasRole(['admin','Legal Pajak']);
+        return $user->hasRole(['admin', 'Kasir 1', 'Kasir 2']);
     }
 
     /**
@@ -35,7 +36,7 @@ class PencairanDajamTkr
      */
     public function update(User $user, PencairanDajamTkr $PencairanDajamTkr): bool
     {
-        return $user->hasRole(['admin','Legal officer','Legal Pajak']);
+        return $user->hasRole(['admin', 'Kasir 1', 'Kasir 2']);
     }
 
     /**
@@ -43,7 +44,7 @@ class PencairanDajamTkr
      */
     public function delete(User $user, PencairanDajamTkr $PencairanDajamTkr): bool
     {
-        return $user->hasRole(['admin','Legal officer','Legal Pajak']);
+        return $user->hasRole(['admin', 'Kasir 1', 'Kasir 2']);
     }
 
     /**
@@ -51,7 +52,7 @@ class PencairanDajamTkr
      */
     public function restore(User $user, PencairanDajamTkr $PencairanDajamTkr): bool
     {
-        return $user->hasRole(['admin','Legal officer','Legal Pajak']);
+        return $user->hasRole(['admin', 'Kasir 1', 'Kasir 2']);
     }
 
     /**
@@ -59,7 +60,6 @@ class PencairanDajamTkr
      */
     public function forceDelete(User $user, PencairanDajamTkr $PencairanDajamTkr): bool
     {
-        return $user->hasRole(['admin','Legal officer','Legal Pajak']);
+        return $user->hasRole(['admin', 'Kasir 1', 'Kasir 2']);
     }
 }
-
