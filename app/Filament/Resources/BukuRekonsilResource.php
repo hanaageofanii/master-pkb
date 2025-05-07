@@ -226,26 +226,69 @@ class BukuRekonsilResource extends Resource
                     ->required(),
 
                     TextInput::make('jumlah_uang')
-                    ->label('Jumlah Uang')
-                    ->disabled(fn () => ! (function () {
-                        /** @var \App\Models\User|null $user */
-                        $user = Auth::user();
-                        return $user && $user->hasRole(['admin','Kasir 2','Kasir 1']);
-                    })())
-                    ->required(),
+                        ->label('Jumlah Uang')
+                        ->required()
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $get, callable $set) {
+                            $perusahaan = $get('nama_perusahaan');
+                            $tipe = $get('tipe');
+                            $jumlahUang = (int) $get('jumlah_uang');
 
-                    Select::make('tipe')
-                    ->label('Tipe')
-                    ->options([
-                        'debit' => 'Debit',
-                        'kredit' => 'Kredit',
-                    ])
-                    ->disabled(fn () => ! (function () {
-                        /** @var \App\Models\User|null $user */
-                        $user = Auth::user();
-                        return $user && $user->hasRole(['admin','Kasir 2','Kasir 1']);
-                    })())
-                    ->required(),
+                            if (! $perusahaan || ! $tipe || $jumlahUang === null) {
+                                return;
+                            }
+
+                            $saldoSebelumnya = \App\Models\BukuRekonsil::where('nama_perusahaan', $perusahaan)
+                                ->selectRaw("SUM(CASE WHEN tipe = 'debit' THEN jumlah_uang ELSE -jumlah_uang END) as total")
+                                ->value('total') ?? 0;
+
+                            // Hitung saldo baru
+                            $saldoBaru = $tipe === 'debit'
+                                ? $saldoSebelumnya + $jumlahUang
+                                : $saldoSebelumnya - $jumlahUang;
+
+                            $set('saldo', $saldoBaru);
+                        })
+                        ->disabled(fn () => ! (function () {
+                            /** @var \App\Models\User|null $user */
+                            $user = Auth::user();
+                            return $user && $user->hasRole(['admin','Kasir 2','Kasir 1']);
+                        })()),
+
+                        Select::make('tipe')
+                        ->label('Tipe')
+                        ->options([
+                            'debit' => 'Debit',
+                            'kredit' => 'Kredit',
+                        ])
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $get, callable $set) {
+                            $perusahaan = $get('nama_perusahaan');
+                            $tipe = $get('tipe');
+                            $jumlahUang = (int) $get('jumlah_uang');
+                    
+                            if (! $perusahaan || ! $tipe || $jumlahUang === null) {
+                                return;
+                            }
+                    
+                            // Hitung total saldo perusahaan
+                            $saldoSebelumnya = \App\Models\BukuRekonsil::where('nama_perusahaan', $perusahaan)
+                                ->selectRaw("SUM(CASE WHEN tipe = 'debit' THEN jumlah_uang ELSE -jumlah_uang END) as total")
+                                ->value('total') ?? 0;
+                    
+                            $saldoBaru = $tipe === 'debit'
+                                ? $saldoSebelumnya + $jumlahUang
+                                : $saldoSebelumnya - $jumlahUang;
+                    
+                            $set('saldo', $saldoBaru);
+                        })
+                        ->disabled(fn () => ! (function () {
+                            /** @var \App\Models\User|null $user */
+                            $user = Auth::user();
+                            return $user && $user->hasRole(['admin','Kasir 2','Kasir 1']);
+                        })())
+                        ->required(),
+                    
 
                     TextInput::make('saldo')
                     ->label('Saldo')
