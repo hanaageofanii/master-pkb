@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\BukuRekonsilResource\Pages;
 
 use App\Filament\Resources\BukuRekonsilResource;
+use App\Filament\Resources\BukuRekonsilResource\Widgets\BukuRekonsilStats;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
@@ -15,6 +16,13 @@ class ListBukuRekonsils extends ListRecords
         return [
             Actions\CreateAction::make()
             ->label('Buat Data Rekonsil'),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            BukuRekonsilStats::class,
         ];
     }
 
