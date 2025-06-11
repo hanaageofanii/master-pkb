@@ -113,14 +113,14 @@ class StokTkrResource extends Resource
                         ->options(
                             audit_tkr::where('terbangun', '=', 1)
                                 ->pluck('siteplan', 'siteplan')
-                                ->toArray()     
-                                ) 
+                                ->toArray()
+                                )
                                 ->searchable()
                         ->required()
                         ->reactive()
                         ->unique(ignoreRecord: true)
                         ->afterStateUpdated(function ($state, callable $set) {
-                            $audit = audit_tkr::where('siteplan', $state)->first(); 
+                            $audit = audit_tkr::where('siteplan', $state)->first();
 
                             if ($audit) {
                                 $set('type', $audit->type);
@@ -131,7 +131,7 @@ class StokTkrResource extends Resource
                             return $user && $user->hasRole('admin');
                         })()),
 
-                
+
                 Forms\Components\TextInput::make('type')
                     ->label('Type')
                     ->required()
@@ -140,7 +140,7 @@ class StokTkrResource extends Resource
                         $user = Auth::user();
                         return $user && $user->hasRole('admin');
                     })()),
-                
+
 
                 Forms\Components\TextInput::make('luas_tanah')
                     ->numeric()
@@ -164,7 +164,7 @@ class StokTkrResource extends Resource
                             $set('tanggal_booking', null);
                             $set('nama_konsumen', null);
                             $set('agent', null);
-                
+
                             $record->update([
                                 'tanggal_booking' => null,
                                 'nama_konsumen' => null,
@@ -201,7 +201,33 @@ class StokTkrResource extends Resource
                         /** @var \App\Models\User|null $user */
                         $user = Auth::user();
                         return $user && $user->hasRole(['admin', 'Legal officer','Legal Pajak', 'KPR Stok']) && $get('status') === 'booking';
-                    })()), 
+                    })()),
+
+               Forms\Components\Select::make('status_sertifikat')
+                    ->options([
+                        'pecah' => 'SUDAH PECAH',
+                        'belum' => 'BELUM PECAH',
+                    ])
+                    ->label('Status Sertifikat')
+                     ->disabled(fn () => ! (function () {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        return $user && $user->hasRole(['Legal officer']);
+                    })()),
+
+                    Forms\Components\Select::make('status_pembayaran')
+                    ->options([
+                        'cash' => 'CASH',
+                        'kpr' => 'KPR',
+                        'cash_bertahap' => 'CASH BERTAHAP',
+                        'promo' => 'PROMO',
+                    ])
+                    ->label('Status Pembayaran')
+                     ->disabled(fn () => ! (function () {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        return $user && $user->hasRole(['admin','KPR Stok']);
+                    })()),
 
                 Forms\Components\Select::make('kpr_status')
                     ->options([
@@ -212,7 +238,7 @@ class StokTkrResource extends Resource
                     ->afterStateUpdated(function ($state, $set, $get, $record) {
                         if ($record && $record->siteplan) {
                             $audit = \App\Models\Audit::where('siteplan', $record->siteplan)->first();
-                
+
                             if ($audit) {
                                 $audit->update([
                                     'status' => $state === 'akad' ? 'akad' : null,
@@ -225,8 +251,8 @@ class StokTkrResource extends Resource
                         $user = Auth::user();
                         if (is_null($state) && $user && $user->hasRole(['Direksi', 'Super admin','admin','KPR Stok'])) {
                             $set('tanggal_akad', null);
-                            
-                
+
+
                             $record->update([
                                 'tanggal_akad' => null,
                             ]);
@@ -331,14 +357,14 @@ class StokTkrResource extends Resource
                 ->options([
                     'booking' => 'Booking',
                 ]) ->native(false),
-        
+
             Tables\Filters\TrashedFilter::make()
                 ->label('Data yang dihapus')
                 ->native(false),
 
-                
-        
-            Tables\Filters\SelectFilter::make('kpr_status') 
+
+
+            Tables\Filters\SelectFilter::make('kpr_status')
                 ->label('Status KPR')
                 ->options([
                     'sp3k' => 'SP3K',
@@ -348,14 +374,14 @@ class StokTkrResource extends Resource
                 ->native(false),
 
 
-            Tables\Filters\SelectFilter::make('proyek') 
+            Tables\Filters\SelectFilter::make('proyek')
                 ->label('Proyek')
                 ->options([
                     'tkr_cira' => 'TKR Cira',
                     'tkr' => 'TKR',
                 ])
                 ->native(false),
-        
+
             Filter::make('created_from')
                 ->label('Dari Tanggal')
                 ->form([
@@ -367,7 +393,7 @@ class StokTkrResource extends Resource
                         $q->whereDate('created_at', '>=', $data['created_from'])
                     )
                 ),
-        
+
             Filter::make('created_until')
                 ->label('Sampai Tanggal')
                 ->form([
@@ -383,7 +409,7 @@ class StokTkrResource extends Resource
         ->filtersFormMaxHeight('400px')
         ->filtersFormColumns(4)
         ->filtersFormWidth(MaxWidth::FourExtraLarge)
-        
+
         ->actions([
             ActionGroup::make([
                 ViewAction::make()
@@ -396,7 +422,7 @@ class StokTkrResource extends Resource
                         Notification::make()
                             ->success()
                             ->title('Data TKR Diperbarui')
-                            ->body('Data TKR telah berhasil disimpan.')),                    
+                            ->body('Data TKR telah berhasil disimpan.')),
                             DeleteAction::make()
                             ->color('danger')
                             ->label(fn ($record) => "Hapus Blok {$record->siteplan}")
@@ -435,23 +461,23 @@ class StokTkrResource extends Resource
                 ),
                 ])->button()->label('Action'),
             ], position: ActionsPosition::BeforeCells)
-        
+
             ->groupedBulkActions([
                 BulkAction::make('delete')
                     ->label('Hapus')
-                    ->icon('heroicon-o-trash') 
+                    ->icon('heroicon-o-trash')
                     ->color('danger')
                     ->successNotification(
                         Notification::make()
                             ->success()
                             ->title('Data TKR')
-                            ->body('Data TKR berhasil dihapus.'))                        
+                            ->body('Data TKR berhasil dihapus.'))
                             ->requiresConfirmation()
                     ->action(fn (Collection $records) => $records->each->delete()),
-            
+
                 BulkAction::make('forceDelete')
                     ->label('Hapus Permanent')
-                    ->icon('heroicon-o-x-circle') 
+                    ->icon('heroicon-o-x-circle')
                     ->color('warning')
                     ->successNotification(
                         Notification::make()
@@ -459,16 +485,16 @@ class StokTkrResource extends Resource
                             ->title('Data TKR')
                             ->body('Data TKR berhasil dihapus secara permanen.'))                        ->requiresConfirmation()
                     ->action(fn (Collection $records) => $records->each->forceDelete()),
-            
+
                 BulkAction::make('export')
                     ->label('Download Data')
-                    ->icon('heroicon-o-arrow-down-tray') 
+                    ->icon('heroicon-o-arrow-down-tray')
                     ->color('info')
                     ->action(fn (Collection $records) => static::exportData($records)),
-            
+
                 Tables\Actions\RestoreBulkAction::make()
                     ->label('Kembalikan Data')
-                    ->icon('heroicon-o-arrow-path') 
+                    ->icon('heroicon-o-arrow-path')
                     ->color('success')
                     ->button()
                     ->successNotification(
@@ -477,7 +503,7 @@ class StokTkrResource extends Resource
                             ->title('Data TKR')
                             ->body('Data TKR berhasil dikembalikan.')),
             ]);
-            
+
 }
 
 public static function getRelations(): array
