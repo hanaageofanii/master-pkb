@@ -211,7 +211,7 @@ class PcaResource extends Resource
                      ->disabled(fn () => ! (function () {
                         /** @var \App\Models\User|null $user */
                         $user = Auth::user();
-                        return $user && $user->hasRole(['Legal officer']);
+                        return $user && $user->hasRole(['admin','Legal officer']);
                     })()),
 
                     Forms\Components\Select::make('status_pembayaran')
