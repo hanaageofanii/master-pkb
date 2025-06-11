@@ -31,7 +31,7 @@ class audit_tkr extends Model
         "tanda_terima_imb_pbg",
         "tanda_terima_tambahan",
         "up_sertifikat", "up_nop", "up_imb_pbg", "up_tambahan_lainnya"
-        
+
 
     ];
 

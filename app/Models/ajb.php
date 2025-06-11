@@ -11,6 +11,7 @@ class ajb extends Model
 {
     use HasFactory, SoftDeletes, HasRoles;
 
+
     protected $fillable = [
         'siteplan',
         'nop',

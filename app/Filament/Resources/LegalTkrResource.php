@@ -49,12 +49,12 @@ class LegalTkrResource extends Resource
 {
     protected static ?string $model = LegalTkr::class;
 
-    protected static ?string $title = "Input Sertifikat TKR";
+    protected static ?string $title = "Legalitas";
     protected static ?string $navigationGroup = "Legal";
-    protected static ?string $pluralLabel = "Form Input Sertifikat TKR";
+    protected static ?string $pluralLabel = "Legalitas TKR";
     protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
-    protected static ?string $navigationLabel = 'Sertifikat TKR';
-    protected static ?string $pluralModelLabel = 'Daftar Input Sertifikat TKR';
+    protected static ?string $navigationLabel = 'Legalitas TKR';
+    protected static ?string $pluralModelLabel = 'Daftar Legalitas TKR';
 
     public static function form(Form $form): Form
     {
@@ -63,8 +63,8 @@ class LegalTkrResource extends Resource
                     Forms\Components\Select::make('siteplan')
                         ->label('Blok')
                         ->nullable()
-                        ->options(fn ($get, $set, $record) => 
-                            FormKprTkr::where('status_akad', 'akad') 
+                        ->options(fn ($get, $set, $record) =>
+                            FormKprTkr::where('status_akad', 'akad')
                                 ->pluck('siteplan', 'siteplan')
                                 ->toArray()
                             + ($record?->siteplan ? [$record->siteplan => $record->siteplan] : [])
@@ -76,7 +76,7 @@ class LegalTkrResource extends Resource
                             return $user && $user->hasRole(['admin','Legal officer']);
                         })())
                         ->afterStateUpdated(function ($state, callable $set) {
-                            $TKRFormKprTkr = FormKprTkr::where('siteplan', $state)->first(); 
+                            $TKRFormKprTkr = FormKprTkr::where('siteplan', $state)->first();
 
                             if ($TKRFormKprTkr) {
                                 $set('nama_konsumen', $TKRFormKprTkr->nama_konsumen);
@@ -181,7 +181,7 @@ class LegalTkrResource extends Resource
                                 ->label('Sertifikat')
                                 ->downloadable()
                                 ->previewable(false),
-                    
+
                             Forms\Components\FileUpload::make('up_pbb')
                                 ->disk('public')
                                 ->disabled(fn () => ! (function () {
@@ -194,7 +194,7 @@ class LegalTkrResource extends Resource
                                 ->label('PBB')
                                 ->downloadable()
                                 ->previewable(false),
-                    
+
                             Forms\Components\FileUpload::make('up_img')
                                 ->disk('public')
                                 ->disabled(fn () => ! (function () {
@@ -224,7 +224,7 @@ class LegalTkrResource extends Resource
                 ->label('Status Sertifikat')
                 ->formatStateUsing(fn ($state) => match ($state) {
                         'induk' => 'Induk',
-                        'pecahan' => 'Pecahan',                    
+                        'pecahan' => 'Pecahan',
                 default => $state,
                 }),
 
@@ -232,7 +232,7 @@ class LegalTkrResource extends Resource
                 Tables\Columns\TextColumn::make('luas_sertifikat')->sortable()->searchable()->label('Luas Sertifikat'),
                 Tables\Columns\TextColumn::make('nop')->sortable()->searchable()->label('NOP'),
                 Tables\Columns\TextColumn::make('nop1')->sortable()->searchable()->label('NOP Tambahan'),
-        
+
                 TextColumn::make('up_sertifikat')
                 ->label('Sertifikat')
                 ->formatStateUsing(function ($record) {
@@ -314,7 +314,7 @@ class LegalTkrResource extends Resource
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make()
-                ->label('Data yang dihapus') 
+                ->label('Data yang dihapus')
                 ->native(false),
 
                 Filter::make('status_sertifikat')
@@ -333,7 +333,7 @@ class LegalTkrResource extends Resource
                             $q->where('status_sertifikat', $data['status_sertifikat'])
                         )
                     ),
-            
+
                     Filter::make('created_from')
                     ->label('Dari Tanggal')
                     ->form([
@@ -345,7 +345,7 @@ class LegalTkrResource extends Resource
                             $q->whereDate('created_at', '>=', $data['created_from'])
                         )
                     ),
-                
+
                 Filter::make('created_until')
                     ->label('Sampai Tanggal')
                     ->form([
@@ -356,13 +356,13 @@ class LegalTkrResource extends Resource
                         $query->when($data['created_until'] ?? null, fn ($q) =>
                             $q->whereDate('created_at', '<=', $data['created_until'])
                         )
-                    ),                
+                    ),
             ], layout: FiltersLayout::AboveContent)
             ->filtersFormMaxHeight('400px')
             ->filtersFormColumns(4)
             ->filtersFormWidth(MaxWidth::FourExtraLarge)
 
-        
+
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
@@ -375,7 +375,7 @@ class LegalTkrResource extends Resource
                             Notification::make()
                                 ->success()
                                 ->title('Data Sertifikat Diubah')
-                                ->body('Data Sertifikat telah berhasil disimpan.')),                    
+                                ->body('Data Sertifikat telah berhasil disimpan.')),
                                 DeleteAction::make()
                                 ->color('danger')
                                 ->label(fn ($record) => "Hapus Blok{$record->siteplan}")
@@ -385,7 +385,7 @@ class LegalTkrResource extends Resource
                                     Notification::make()
                                         ->success()
                                         ->title('Data Sertifikat Dihapus')
-                                        ->body('Data Sertifikat telah berhasil dihapus.')),    
+                                        ->body('Data Sertifikat telah berhasil dihapus.')),
                     // RestoreAction::make()
                     //     ->label('Pulihkan')
                     //     ->successNotificationTitle('Data berhasil dipulihkan')
@@ -414,23 +414,23 @@ class LegalTkrResource extends Resource
                     ),
                     ])->button()->label('Action'),
                 ], position: ActionsPosition::BeforeCells)
-            
+
                 ->groupedBulkActions([
                     BulkAction::make('delete')
                         ->label('Hapus')
-                        ->icon('heroicon-o-trash') 
+                        ->icon('heroicon-o-trash')
                         ->color('danger')
                         ->successNotification(
                             Notification::make()
                                 ->success()
                                 ->title('Data Sertifikat')
-                                ->body('Data Sertifikat berhasil dihapus.'))                        
+                                ->body('Data Sertifikat berhasil dihapus.'))
                                 ->requiresConfirmation()
                         ->action(fn (Collection $records) => $records->each->delete()),
-                
+
                     BulkAction::make('forceDelete')
                         ->label('Hapus Permanent')
-                        ->icon('heroicon-o-x-circle') 
+                        ->icon('heroicon-o-x-circle')
                         ->color('warning')
                         ->successNotification(
                             Notification::make()
@@ -438,16 +438,16 @@ class LegalTkrResource extends Resource
                                 ->title('Data Sertifikat')
                                 ->body('Data Sertifikat berhasil dihapus secara permanen.'))                        ->requiresConfirmation()
                         ->action(fn (Collection $records) => $records->each->forceDelete()),
-                
+
                     BulkAction::make('export')
                         ->label('Download Data')
-                        ->icon('heroicon-o-arrow-down-tray') 
+                        ->icon('heroicon-o-arrow-down-tray')
                         ->color('info')
                         ->action(fn (Collection $records) => static::exportData($records)),
-                
+
                     Tables\Actions\RestoreBulkAction::make()
                         ->label('Kembalikan Data')
-                        ->icon('heroicon-o-arrow-path') 
+                        ->icon('heroicon-o-arrow-path')
                         ->color('success')
                         ->button()
                         ->successNotification(
@@ -461,11 +461,11 @@ class LegalTkrResource extends Resource
     public static function exportData(Collection $records)
     {
         $csvData = "ID, Blok, Nama Konsumen, ID Rumah, Status Sertifikat, No. Sertifikat, Luas Sertifikat, NOP, NOP Pecahan\n";
-    
+
         foreach ($records as $record) {
             $csvData .= "{$record->id}, {$record->siteplan}, {$record->nama_konsumen}, {$record->id_rumah}, {$record->status_sertifikat}, {$record->no_sertifikat}, {$record->luas_sertifikat}, {$record->nop}, {$record->nop1}\n";
         }
-    
+
         return response()->streamDownload(fn () => print($csvData), 'Sertifikat.csv');
     }
 
