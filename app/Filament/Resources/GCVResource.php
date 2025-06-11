@@ -332,6 +332,20 @@ class GCVResource extends Resource
                 Tables\Columns\TextColumn::make('tanggal_booking')->date()->label('Tanggal Booking')->searchable()                ->formatStateUsing(fn ($state) => Carbon::parse($state)->translatedFormat('d F Y')),
                 Tables\Columns\TextColumn::make('nama_konsumen')->label('Nama Konsumen')->searchable(),
                 Tables\Columns\TextColumn::make('agent')->label('Agent')->searchable(),
+                 Tables\Columns\TextColumn::make('status_sertifikat')->label('Status Sertifikat')
+            ->formatStateUsing(fn (string $state): string => match ($state) {
+                'pecah' => 'SUDAH PECAH',
+                'belum' => 'BELUM PECAH',
+                default => $state,
+            })->searchable(),
+            Tables\Columns\TextColumn::make('status_pembayaran')->label('Status Pembayaran')
+            ->formatStateUsing(fn (string $state): string => match ($state) {
+                'cash' => 'CASH',
+                'kpr' => 'KPR',
+                'cash_bertahap' => 'CASH BERTAHAP',
+                'promo' => 'PROMO',
+                default => $state,
+            })->searchable(),
                 Tables\Columns\TextColumn::make('kpr_status')
                     ->label('KPR Status')
                     ->default(fn ($record) => $record->audits?->status === 'akad' ? 'Akad' : $record->kpr_status)
